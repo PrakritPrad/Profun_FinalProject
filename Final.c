@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <windows.h>
 
-
 void welcome_screen();
 void display_menu();
 void save_to_csv();
@@ -42,12 +41,12 @@ int main()
     int choice;
 
     welcome_screen();
-
+    display_menu();
     while (1)
     {
-        display_menu();
+       
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+        scanf(" %d", &choice);
 
         switch (choice)
         {
@@ -79,22 +78,55 @@ int main()
             printf("Invalid choice\n");
         }
 
-        Sleep(1000);
-        system("cls");
+        //Sleep(1000);
+        //system("cls");
     }
 
     return 0;
 }
 
-
 void save_to_csv()
 {
     printf("Save data to csv...\n");
+    Sleep(1000);
+    FILE *fp = fopen("data.csv", "w");
+    if (fp == NULL)
+    {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    fprintf(fp, "id,name,destination,date\n");
+    fprintf(fp, "1,John,Tokyo,2025-09-13\n");
+    fprintf(fp, "2,Alice,Bangkok,2025-09-14\n");
+
+    fclose(fp);
+    printf("Data saved to data.csv\n");
+    Sleep(500);
+    display_menu();
 }
 
 void load_from_csv()
 {
-    printf("Read data from csv...\n");
+    printf("Load data from csv...\n");
+    Sleep(200);
+    FILE  *fp = fopen("data.csv", "r");
+    if(fp == NULL){
+        printf("Error opening file!\n");
+    }
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+
+    // ล้าง buffer จาก scanf
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+
+    printf("\n-Please Enter to back to menu-");
+    getchar();
+    display_menu();
 }
 
 void add_user()
