@@ -131,7 +131,30 @@ void load_from_csv()
 
 void add_user()
 {
-    printf("Add user...\n");
+    int id;
+    char name[50], destination[50], date[20];
+
+    printf("Enter id: ");
+    scanf("%d", &id);
+    printf("Enter name: ");
+    scanf("%s", name);
+    printf("Enter destination: ");
+    scanf("%s", destination);
+    printf("Enter date (YYYY-MM-DD): ");
+    scanf("%s", date);
+
+    FILE *fp = fopen("data.csv", "a");
+    if (fp == NULL)
+    {
+        printf("Error opening file!\n");
+        return;
+    }
+    fprintf(fp, "%d,%s,%s,%s\n", id, name, destination, date);
+    fclose(fp);
+
+    printf("User added successfully!\n");
+    Sleep(500);
+    display_menu();
 }
 
 void search_user()
