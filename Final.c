@@ -13,8 +13,6 @@ char destinations[MAX_BOOKINGS][50];
 char dates[MAX_BOOKINGS][20];
 int bookingCount = 0;
 
-void welcome_screen();
-void display_menu();
 void save_to_csv();
 void load_from_csv();
 void add_user();
@@ -22,8 +20,11 @@ void search_menu();
 void search_user(const char *field);
 void update_user();
 void delete_user();
-void to_lowercase(char *str);
 
+void trim_newline(char *s);
+void display_menu();
+void welcome_screen();
+void to_lowercase(char *str);
 int is_number(const char *str);
 int is_name(const char *str);
 int is_valid_date(const char *str);
@@ -34,7 +35,7 @@ void welcome_screen()
     printf("=====================================\n");
     printf("🌟 Travel booking management system 🌟\n");
     printf("=====================================\n\n");
-    Sleep(1500);
+    Sleep(100);
 }
 
 void display_menu()
@@ -64,7 +65,9 @@ int main()
         {
             printf("Invalid input! Please enter a number between 1 and 8.\n");
             int c;
-            while ((c = getchar()) != '\n' && c != EOF) {}
+            while ((c = getchar()) != '\n' && c != EOF)
+            {
+            }
             continue;
         }
 
@@ -76,14 +79,30 @@ int main()
 
         switch (choice)
         {
-        case 1: save_to_csv(); break;
-        case 2: load_from_csv(); break;
-        case 3: add_user(); break;
-        case 4: search_menu(); break;
-        case 5: update_user(); break;
-        case 6: delete_user(); break;
-        case 7: display_menu(); break;
-        case 8: printf("Exiting program...\n"); return 0;
+        case 1:
+            save_to_csv();
+            break;
+        case 2:
+            load_from_csv();
+            break;
+        case 3:
+            add_user();
+            break;
+        case 4:
+            search_menu();
+            break;
+        case 5:
+            update_user();
+            break;
+        case 6:
+            delete_user();
+            break;
+        case 7:
+            display_menu();
+            break;
+        case 8:
+            printf("Exiting program...\n");
+            return 0;
         }
     }
     return 0;
@@ -92,10 +111,14 @@ int main()
 void save_to_csv()
 {
     FILE *fp = fopen("data.csv", "a");
-    if (!fp) { printf("Error opening file!\n"); return; }
+    if (!fp)
+    {
+        printf("Error opening file!\n");
+        return;
+    }
 
-    fprintf(fp, "id,name,destination,date\n");
-    for (int i = 0; i < bookingCount; i++) {
+    for (int i = 0; i < bookingCount; i++)
+    {
         fprintf(fp, "%d,%s,%s,%s\n", ids[i], names[i], destinations[i], dates[i]);
     }
     fclose(fp);
@@ -106,7 +129,11 @@ void save_to_csv()
 void load_from_csv()
 {
     FILE *fp = fopen("data.csv", "r");
-    if (!fp) { printf("Error opening file!\n"); return; }
+    if (!fp)
+    {
+        printf("Error opening file!\n");
+        return;
+    }
 
     char line[256];
     printf("------------------------------------------------------------\n");
@@ -134,10 +161,13 @@ void add_user()
     int id;
 
     // รับ ID
-    while (1) {
+    while (1)
+    {
         printf("Enter id (numbers only): ");
         scanf("%9s", id_str);
-        if (is_number(id_str)) {
+        getchar();
+        if (is_number(id_str))
+        {
             id = atoi(id_str);
             break;
         }
@@ -145,42 +175,57 @@ void add_user()
     }
 
     // รับ Name
-    while (1) {
-        printf("Enter name (letters only): ");
-        scanf("%49s", name);
-        if (is_name(name)) break;
+    while (1)
+    {
+        printf("Enter name (letters only, allow spaces): ");
+        if (fgets(name, sizeof(name), stdin) == NULL)
+        {
+            continue; // ถ้าอ่านไม่ได้ก็วนใหม่
+        }
+        trim_newline(name); // ตัด \n ถ้ามี
+
+        if (is_name(name))
+            break;
+
         printf("Invalid Name! Try again.\n");
     }
 
     // รับ Destination
-    while (1) {
+    while (1)
+    {
         printf("Enter destination (letters only): ");
         scanf("%49s", destination);
-        if (is_name(destination)) break;
+
+        if (is_name(destination))
+            break;
         printf("Invalid Destination! Try again.\n");
     }
 
     // รับ Date
-    while (1) {
+    while (1)
+    {
         printf("Enter date (YYYY-MM-DD): ");
         scanf("%19s", date);
-        if (is_valid_date(date)) break;
+        if (is_valid_date(date))
+            break;
         printf("Invalid Date format! Try again.\n");
     }
 
     // บันทึกลง array
-    if (bookingCount < MAX_BOOKINGS) {
+    if (bookingCount < MAX_BOOKINGS)
+    {
         ids[bookingCount] = id;
         strcpy(names[bookingCount], name);
         strcpy(destinations[bookingCount], destination);
         strcpy(dates[bookingCount], date);
         bookingCount++;
         printf("Booking stored in memory (not saved yet)\n");
-    } else {
+    }
+    else
+    {
         printf("Memory full, cannot add more!\n");
     }
 }
-
 
 void search_menu()
 {
@@ -194,10 +239,17 @@ void search_menu()
 
     switch (option)
     {
-    case 1: search_user("name"); break;
-    case 2: search_user("destination"); break;
-    case 3: search_user("date"); break;
-    default: printf("Invalid choice!\n");
+    case 1:
+        search_user("name");
+        break;
+    case 2:
+        search_user("destination");
+        break;
+    case 3:
+        search_user("date");
+        break;
+    default:
+        printf("Invalid choice!\n");
     }
 }
 
@@ -212,7 +264,11 @@ void search_user(const char *field)
     to_lowercase(keyword);
 
     FILE *fp = fopen("data.csv", "r");
-    if (!fp) { printf("Error opening file!\n"); return; }
+    if (!fp)
+    {
+        printf("Error opening file!\n");
+        return;
+    }
 
     int found = 0;
     printf("\n------ Search Result (%s) ------\n", field);
@@ -228,7 +284,8 @@ void search_user(const char *field)
     }
     fclose(fp);
 
-    if (!found) printf("No records found for %s\n", keyword);
+    if (!found)
+        printf("No records found for %s\n", keyword);
     printf("--------------------------------\n");
 }
 
@@ -242,6 +299,13 @@ void delete_user()
     printf("Delete user (not implemented yet)\n");
 }
 
+void trim_newline(char *s)
+{
+    size_t n = strlen(s);
+    if (n > 0 && s[n - 1] == '\n')
+        s[n - 1] = '\0';
+}
+
 void to_lowercase(char *str)
 {
     for (int i = 0; str[i]; i++)
@@ -249,18 +313,31 @@ void to_lowercase(char *str)
             str[i] = str[i] + 32;
 }
 
-int is_number(const char *str) {
-    for (int i=0; str[i]; i++) if (!isdigit(str[i])) return 0;
+int is_number(const char *str)
+{
+    for (int i = 0; str[i]; i++)
+        if (!isdigit(str[i]))
+            return 0;
     return 1;
 }
-int is_name(const char *str) {
-    for (int i=0; str[i]; i++) if (!isalpha(str[i])) return 0;
+int is_name(const char *str)
+{
+    for (int i = 0; str[i]; i++)
+    {
+        if (!isalpha((unsigned char)str[i]) && str[i] != ' ')
+            return 0;
+    }
     return 1;
 }
-int is_valid_date(const char *str) {
+
+int is_valid_date(const char *str)
+{
     int y, m, d;
-    if (sscanf(str, "%4d-%2d-%2d", &y, &m, &d) != 3) return 0;
-    if (m < 1 || m > 12) return 0;
-    if (d < 1 || d > 31) return 0;
+    if (sscanf(str, "%4d-%2d-%2d", &y, &m, &d) != 3)
+        return 0;
+    if (m < 1 || m > 12)
+        return 0;
+    if (d < 1 || d > 31)
+        return 0;
     return 1;
 }
