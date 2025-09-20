@@ -58,11 +58,10 @@ int main()
 {
     int choice;
     welcome_screen();
-    display_menu();
     sync_from_csv();
     while (1)
     {
-
+        display_menu();
         printf("Enter your choice: ");
         if (scanf("%d", &choice) != 1)
         {
@@ -126,7 +125,7 @@ void save_to_csv()
     }
     fclose(fp);
 
-    printf("Save ID %d to data.csv\n", bookingCount);
+    printf("Save to csv successfully!\n");
 }
 
 void load_from_csv()
@@ -159,9 +158,12 @@ void load_from_csv()
 
     printf("------------------------------------------------------------\n");
     printf("\nPlease press ENTER to go back to menu...");
-    int c;while ((c = getchar()) != '\n' && c != EOF) {}
-    getchar();      
-    display_menu(); 
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    }
+    getchar();
+
 
     fclose(fp);
 }
@@ -217,7 +219,8 @@ void add_user()
         strcpy(destinations[bookingCount], destination);
         strcpy(dates[bookingCount], date);
         bookingCount++;
-        printf("Booking stored with ID %d\n", bookingCount);
+        printf("Booking stored with ID %d ...\n", bookingCount);
+        Sleep(1000);
     }
     else
     {
@@ -232,6 +235,7 @@ void search_menu()
     printf("1. Search by Name\n");
     printf("2. Search by Destination\n");
     printf("3. Search by Date\n");
+    printf("==== Enter 0 to Exit ====\n");
     printf("Enter choice: ");
     scanf("%d", &option);
 
@@ -245,6 +249,11 @@ void search_menu()
         break;
     case 3:
         search_user("date");
+        break;
+    case 0:
+    printf("Exiting search menu...\n");
+        Sleep(1000);
+        return;
         break;
     default:
         printf("Invalid choice!\n");
@@ -272,29 +281,169 @@ void search_user(const char *field)
     printf("\n------ Search Result (%s) ------\n", field);
     while (fgets(line, sizeof(line), fp))
     {
+        // เก็บ copy ไว้เพื่อค้นหา
         strcpy(temp, line);
         to_lowercase(temp);
+
         if (strstr(temp, keyword))
         {
-            printf("%s", line);
-            found = 1;
+            // แยก field
+            line[strcspn(line, "\n")] = 0;
+            char *id = strtok(line, ",");
+            char *name = strtok(NULL, ",");
+            char *destination = strtok(NULL, ",");
+            char *date = strtok(NULL, ",");
+
+            if (id && name && destination && date)
+            {
+                printf("ID: %s | Name: %s | Destination: %s | Date: %s\n",
+                       id, name, destination, date);
+                found = 1;
+            }
         }
     }
     fclose(fp);
 
     if (!found)
         printf("No records found for %s\n", keyword);
+
     printf("--------------------------------\n");
+    printf("\nPlease press ENTER to go back to menu...");
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    }
+    getchar();
+    display_menu();
 }
 
 void update_user()
 {
-    printf("Update user (not implemented yet)\n");
+    int id;
+    while (1)
+    {
+        printf("Enter ID to update (0 to cancel): ");
+        scanf("%d", &id);
+
+        if (id == 0)
+        {
+            printf("Update canceled by user.\n");
+            Sleep(1000);
+            display_menu();
+            return;
+        }
+
+        if (id < 1 || id > bookingCount)
+        {
+            printf("Invalid ID!\n");
+            continue;
+        }
+        break;
+    }
+
+    id--; // index array
+
+    printf("\nCurrent record:\n");
+    printf("ID: %d | Name: %s | Destination: %s | Date: %s\n",
+           id + 1, names[id], destinations[id], dates[id]);
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    } // clear buffer
+
+    char confirm[10];
+    printf("Do you want to update this record? (yes/no): ");
+    fgets(confirm, sizeof(confirm), stdin);
+    trim_newline(confirm);
+
+    if (strcmp(confirm, "yes") != 0 && strcmp(confirm, "YES") != 0)
+    {
+        printf("Update canceled.\n");
+        Sleep(1000);
+        return;
+    }
+
+    // --- กรอกค่าใหม่ ---
+    printf("Enter new name: ");
+    fgets(names[id], sizeof(names[id]), stdin);
+    trim_newline(names[id]);
+
+    printf("Enter new destination: ");
+    fgets(destinations[id], sizeof(destinations[id]), stdin);
+    trim_newline(destinations[id]);
+
+    printf("Enter new date (YYYY-MM-DD): ");
+    fgets(dates[id], sizeof(dates[id]), stdin);
+    trim_newline(dates[id]);
+
+    if (!is_valid_date(dates[id]))
+    {
+        printf("Invalid date format! Update canceled.\n");
+        return;
+    }
+
+    printf("Pleas Save to confirm!!!\n");
 }
 
 void delete_user()
 {
-    printf("Delete user (not implemented yet)\n");
+    int id;
+    while (1)
+    {
+        printf("Enter ID to delete (0 to cancel): ");
+        scanf("%d", &id);
+
+        if (id == 0)
+        {
+            printf("Delete canceled by user.\n");
+            Sleep(1000);
+            return;
+        }
+
+        if (id < 1 || id > bookingCount)
+        {
+            printf("Invalid ID! Please try again.\n");
+            continue; // วนใหม่
+        }
+
+        break; // valid แล้ว ออกจาก loop
+    }
+    id--; // index
+
+    printf("\nRecord to delete:\n");
+    printf("ID: %d | Name: %s | Destination: %s | Date: %s\n", id + 1, names[id], destinations[id], dates[id]);
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    } // clear buffer
+
+    char confirm[10];
+    printf("Are you sure you want to delete this record? (yes/no): ");
+    fgets(confirm, sizeof(confirm), stdin);
+    trim_newline(confirm);
+
+    if (strcmp(confirm, "yes") == 0 || strcmp(confirm, "YES") == 0)
+    {
+        // Shift array
+        for (int i = id; i < bookingCount - 1; i++)
+        {
+            strcpy(names[i], names[i + 1]);
+            strcpy(destinations[i], destinations[i + 1]);
+            strcpy(dates[i], dates[i + 1]);
+        }
+        bookingCount--;
+
+        printf("Pleas Save to confirm \n");
+        Sleep(1000);
+        display_menu();
+    }
+    else
+    {
+        printf("Delete canceled.\n");
+        Sleep(1000);
+    }
 }
 
 void sync_from_csv()
