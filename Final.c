@@ -20,6 +20,7 @@ void search_menu();
 void search_user(const char *field);
 void update_user();
 void delete_user();
+void sync_from_csv();
 
 void trim_newline(char *s);
 void display_menu();
@@ -28,6 +29,7 @@ void to_lowercase(char *str);
 int is_number(const char *str);
 int is_name(const char *str);
 int is_valid_date(const char *str);
+void reset_ids();
 
 void welcome_screen()
 {
@@ -57,9 +59,10 @@ int main()
     int choice;
     welcome_screen();
     display_menu();
-
+    sync_from_csv();
     while (1)
     {
+
         printf("Enter your choice: ");
         if (scanf("%d", &choice) != 1)
         {
@@ -110,7 +113,7 @@ int main()
 
 void save_to_csv()
 {
-    FILE *fp = fopen("data.csv", "a");
+    FILE *fp = fopen("data.csv", "w");
     if (!fp)
     {
         printf("Error opening file!\n");
@@ -119,11 +122,11 @@ void save_to_csv()
 
     for (int i = 0; i < bookingCount; i++)
     {
-        fprintf(fp, "%d,%s,%s,%s\n", ids[i], names[i], destinations[i], dates[i]);
+        fprintf(fp, "%d,%s,%s,%s\n", i + 1, names[i], destinations[i], dates[i]);
     }
     fclose(fp);
 
-    printf("Saved %d bookings to data.csv\n", bookingCount);
+    printf("Save ID %d to data.csv\n", bookingCount);
 }
 
 void load_from_csv()
@@ -149,77 +152,72 @@ void load_from_csv()
         char *date = strtok(NULL, ",");
 
         if (id && name && destination && date)
+        {
             printf("| %-5s | %-15s | %-15s | %-12s |\n", id, name, destination, date);
+        }
     }
+
     printf("------------------------------------------------------------\n");
+    printf("\nPlease press ENTER to go back to menu...");
+    int c;while ((c = getchar()) != '\n' && c != EOF) {}
+    getchar();      
+    display_menu(); 
+
     fclose(fp);
 }
 
 void add_user()
 {
-    char id_str[10], name[50], destination[50], date[20];
-    int id;
+    char name[50], destination[50], date[20];
 
-    // รับ ID
-    while (1)
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
     {
-        printf("Enter id (numbers only): ");
-        scanf("%9s", id_str);
-        getchar();
-        if (is_number(id_str))
-        {
-            id = atoi(id_str);
-            break;
-        }
-        printf("Invalid ID! Try again.\n");
-    }
+    } // clear buffer
 
-    // รับ Name
+    // Name
     while (1)
     {
         printf("Enter name (letters only, allow spaces): ");
         if (fgets(name, sizeof(name), stdin) == NULL)
-        {
-            continue; // ถ้าอ่านไม่ได้ก็วนใหม่
-        }
-        trim_newline(name); // ตัด \n ถ้ามี
-
+            continue;
+        trim_newline(name);
         if (is_name(name))
             break;
-
         printf("Invalid Name! Try again.\n");
     }
 
-    // รับ Destination
+    // Destination
     while (1)
     {
-        printf("Enter destination (letters only): ");
-        scanf("%49s", destination);
-
+        printf("Enter destination (letters only, allow spaces): ");
+        if (fgets(destination, sizeof(destination), stdin) == NULL)
+            continue;
+        trim_newline(destination);
         if (is_name(destination))
             break;
         printf("Invalid Destination! Try again.\n");
     }
 
-    // รับ Date
+    // Date
     while (1)
     {
         printf("Enter date (YYYY-MM-DD): ");
-        scanf("%19s", date);
+        if (fgets(date, sizeof(date), stdin) == NULL)
+            continue;
+        trim_newline(date);
         if (is_valid_date(date))
             break;
         printf("Invalid Date format! Try again.\n");
     }
 
-    // บันทึกลง array
     if (bookingCount < MAX_BOOKINGS)
     {
-        ids[bookingCount] = id;
         strcpy(names[bookingCount], name);
         strcpy(destinations[bookingCount], destination);
         strcpy(dates[bookingCount], date);
         bookingCount++;
-        printf("Booking stored in memory (not saved yet)\n");
+        printf("Booking stored with ID %d\n", bookingCount);
     }
     else
     {
@@ -299,6 +297,34 @@ void delete_user()
     printf("Delete user (not implemented yet)\n");
 }
 
+void sync_from_csv()
+{
+    FILE *fp = fopen("data.csv", "r");
+    if (!fp)
+        return;
+
+    char line[256];
+    bookingCount = 0;
+
+    while (fgets(line, sizeof(line), fp))
+    {
+        line[strcspn(line, "\n")] = 0;
+        char *id = strtok(line, ",");
+        char *name = strtok(NULL, ",");
+        char *destination = strtok(NULL, ",");
+        char *date = strtok(NULL, ",");
+
+        if (name && destination && date)
+        {
+            strcpy(names[bookingCount], name);
+            strcpy(destinations[bookingCount], destination);
+            strcpy(dates[bookingCount], date);
+            bookingCount++;
+        }
+    }
+    fclose(fp);
+}
+
 void trim_newline(char *s)
 {
     size_t n = strlen(s);
@@ -333,11 +359,21 @@ int is_name(const char *str)
 int is_valid_date(const char *str)
 {
     int y, m, d;
-    if (sscanf(str, "%4d-%2d-%2d", &y, &m, &d) != 3)
+    if (sscanf(str, "%d-%d-%d", &y, &m, &d) != 3)
+        return 0;
+    if (y < 2024 || y > 2030)
         return 0;
     if (m < 1 || m > 12)
         return 0;
     if (d < 1 || d > 31)
         return 0;
     return 1;
+}
+
+void reset_ids()
+{
+    for (int i = 0; i < bookingCount; i++)
+    {
+        ids[i] = i + 1;
+    }
 }
