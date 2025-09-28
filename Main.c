@@ -11,6 +11,7 @@ int ids[MAX_BOOKINGS];
 char names[MAX_BOOKINGS][50];
 char destinations[MAX_BOOKINGS][50];
 char dates[MAX_BOOKINGS][20];
+char booking_codes[MAX_BOOKINGS][10];
 int bookingCount = 0;
 
 void save_to_csv();
@@ -30,6 +31,7 @@ int is_number(const char *str);
 int is_name(const char *str);
 int is_valid_date(const char *str);
 void reset_ids();
+void generate_unique_code(char code[10]);
 
 void welcome_screen()
 {
@@ -121,7 +123,7 @@ void save_to_csv()
 
     for (int i = 0; i < bookingCount; i++)
     {
-        fprintf(fp, "%d,%s,%s,%s\n", i + 1, names[i], destinations[i], dates[i]);
+        fprintf(fp, "%d,%s,%s,%s,%s\n", i + 1, booking_codes[i], names[i], destinations[i], dates[i]);
     }
     fclose(fp);
 
@@ -138,32 +140,36 @@ void load_from_csv()
     }
 
     char line[256];
-    printf("------------------------------------------------------------\n");
-    printf("| %-5s | %-15s | %-15s | %-12s |\n", "ID", "Name", "Destination", "Date");
-    printf("------------------------------------------------------------\n");
+    printf("-------------------------------------------------------------------------------\n");
+    printf("| %-5s | %-8s | %-20s | %-15s | %-12s |\n",
+           "ID", "Booking ID", "Name", "Destination", "Date");
+    printf("-------------------------------------------------------------------------------\n");
 
     while (fgets(line, sizeof(line), fp))
     {
         line[strcspn(line, "\n")] = 0;
+
+        // อ่านตามลำดับ ID, Code, Name, Destination, Date
         char *id = strtok(line, ",");
+        char *code = strtok(NULL, ",");
         char *name = strtok(NULL, ",");
         char *destination = strtok(NULL, ",");
         char *date = strtok(NULL, ",");
 
-        if (id && name && destination && date)
+        if (id && code && name && destination && date)
         {
-            printf("| %-5s | %-15s | %-15s | %-12s |\n", id, name, destination, date);
+            printf("| %-5s | %-10s | %-20s | %-15s | %-12s |\n",
+                   id, code, name, destination, date);
         }
     }
 
-    printf("------------------------------------------------------------\n");
+    printf("-------------------------------------------------------------------------------\n");
     printf("\nPlease press ENTER to go back to menu...");
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
     {
     }
     getchar();
-
 
     fclose(fp);
 }
@@ -215,13 +221,25 @@ void add_user()
 
     if (bookingCount < MAX_BOOKINGS)
     {
+        generate_unique_code(booking_codes[bookingCount]); // << สร้าง code
+
         strcpy(names[bookingCount], name);
         strcpy(destinations[bookingCount], destination);
         strcpy(dates[bookingCount], date);
+
+        printf("-----------------------------\n");
+        printf("\nBooking stored with ID %d\n", bookingCount + 1);
+        printf("Your booking ID is: %s\n", booking_codes[bookingCount]); // << แสดงรหัส
+        printf("-----------------------------\n");
+        printf("Please Save to confirm!!\n");
+
         bookingCount++;
-        printf("Booking stored with ID %d ...\n", bookingCount);
-        Sleep(1000);
+        printf("\nPlease press ENTER to go back to menu...");
+        while ((c = getchar()) != '\n' && c != EOF)
+        {
+        }
     }
+
     else
     {
         printf("Memory full, cannot add more!\n");
@@ -232,9 +250,10 @@ void search_menu()
 {
     int option;
     printf("\n====== Search Menu ======\n");
-    printf("1. Search by Name\n");
-    printf("2. Search by Destination\n");
-    printf("3. Search by Date\n");
+    printf("1. Search by Booking ID\n");
+    printf("2. Search by Name\n");
+    printf("3. Search by Destination\n");
+    printf("4. Search by Date\n");
     printf("==== Enter 0 to Exit ====\n");
     printf("Enter choice: ");
     scanf("%d", &option);
@@ -242,16 +261,19 @@ void search_menu()
     switch (option)
     {
     case 1:
-        search_user("name");
+        search_user("code");
         break;
     case 2:
-        search_user("destination");
+        search_user("name");
         break;
     case 3:
+        search_user("destination");
+        break;
+    case 4:
         search_user("date");
         break;
     case 0:
-    printf("Exiting search menu...\n");
+        printf("Exiting search menu...\n");
         Sleep(1000);
         return;
         break;
@@ -263,58 +285,91 @@ void search_menu()
 void search_user(const char *field)
 {
     char keyword[50];
-    char line[256];
-    char temp[256];
-
-    printf("Enter %s to search: ", field);
-    scanf("%49s", keyword);
-    to_lowercase(keyword);
-
-    FILE *fp = fopen("data.csv", "r");
-    if (!fp)
-    {
-        printf("Error opening file!\n");
-        return;
-    }
-
     int found = 0;
-    printf("\n------ Search Result (%s) ------\n", field);
-    while (fgets(line, sizeof(line), fp))
-    {
-        // เก็บ copy ไว้เพื่อค้นหา
-        strcpy(temp, line);
-        to_lowercase(temp);
 
-        if (strstr(temp, keyword))
-        {
-            // แยก field
-            line[strcspn(line, "\n")] = 0;
-            char *id = strtok(line, ",");
-            char *name = strtok(NULL, ",");
-            char *destination = strtok(NULL, ",");
-            char *date = strtok(NULL, ",");
-
-            if (id && name && destination && date)
-            {
-                printf("ID: %s | Name: %s | Destination: %s | Date: %s\n",
-                       id, name, destination, date);
-                found = 1;
-            }
-        }
-    }
-    fclose(fp);
-
-    if (!found)
-        printf("No records found for %s\n", keyword);
-
-    printf("--------------------------------\n");
-    printf("\nPlease press ENTER to go back to menu...");
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
     {
     }
-    getchar();
-    display_menu();
+
+    while (1)
+    {
+
+        printf("Enter %s to search: ", field);
+        fgets(keyword, sizeof(keyword), stdin);
+        trim_newline(keyword);
+        to_lowercase(keyword);
+
+        if (strlen(keyword) == 0)
+        {
+            printf("Search keyword cannot be empty!\n");
+            continue;
+        }
+        break;
+    }
+
+    if (strcmp(field, "code") == 0)
+    {
+        for (int i = 0; i < bookingCount; i++)
+        {
+            char temp[10];
+            strcpy(temp, booking_codes[i]); // copy code เดิมมา
+            to_lowercase(temp);             // แปลงเป็นตัวเล็ก
+
+            if (strcmp(keyword, temp) == 0) // เทียบกับ keyword ที่เป็น lower แล้ว
+            {
+                printf("Booking Found:\n");
+                printf("ID: %d | Code: %s | Name: %s | Destination: %s | Date: %s\n",
+                       i + 1, booking_codes[i], names[i], destinations[i], dates[i]);
+                found = 1;
+                break;
+            }
+        }
+    }
+
+    else
+    {
+        // ค้นหาในไฟล์เหมือนเดิม
+        FILE *fp = fopen("data.csv", "r");
+        if (!fp)
+        {
+            printf("Error opening file!\n");
+            return;
+        }
+
+        char line[256], temp[256];
+        while (fgets(line, sizeof(line), fp))
+        {
+            strcpy(temp, line);
+            to_lowercase(temp);
+
+            if (strstr(temp, keyword))
+            {
+                line[strcspn(line, "\n")] = 0;
+                char *id = strtok(line, ",");
+                char *code = strtok(NULL, ",");
+                char *name = strtok(NULL, ",");
+                char *destination = strtok(NULL, ",");
+                char *date = strtok(NULL, ",");
+
+                if (id && code && name && destination && date)
+                {
+                    printf("ID: %s | Code: %s | Name: %s | Destination: %s | Date: %s\n",
+                           id, code, name, destination, date);
+                    found = 1;
+                }
+            }
+        }
+        fclose(fp);
+    }
+
+    if (!found)
+        printf("No records found for %s\n", keyword);
+
+    printf("\nPlease press ENTER to go back to menu...");
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    }
 }
 
 void update_user()
@@ -458,13 +513,16 @@ void sync_from_csv()
     while (fgets(line, sizeof(line), fp))
     {
         line[strcspn(line, "\n")] = 0;
+
         char *id = strtok(line, ",");
+        char *code = strtok(NULL, ",");
         char *name = strtok(NULL, ",");
         char *destination = strtok(NULL, ",");
         char *date = strtok(NULL, ",");
 
-        if (name && destination && date)
+        if (id && code && name && destination && date)
         {
+            strcpy(booking_codes[bookingCount], code);
             strcpy(names[bookingCount], name);
             strcpy(destinations[bookingCount], destination);
             strcpy(dates[bookingCount], date);
@@ -497,6 +555,9 @@ int is_number(const char *str)
 }
 int is_name(const char *str)
 {
+    int len = strlen(str);
+    if (len < 2)
+        return 0;
     for (int i = 0; str[i]; i++)
     {
         if (!isalpha((unsigned char)str[i]) && str[i] != ' ')
@@ -525,4 +586,27 @@ void reset_ids()
     {
         ids[i] = i + 1;
     }
+}
+
+void generate_unique_code(char code[10])
+{
+    const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    int unique;
+    do
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            code[i] = charset[rand() % (sizeof(charset) - 1)];
+        }
+        code[6] = '\0';
+        unique = 1;
+        for (int j = 0; j < bookingCount; j++)
+        {
+            if (strcmp(code, booking_codes[j]) == 0)
+            {
+                unique = 0; // เจอซ้ำ → loop อีกรอบ
+                break;
+            }
+        }
+    } while (!unique);
 }
