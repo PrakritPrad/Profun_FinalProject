@@ -3,10 +3,11 @@
 #include <windows.h>
 #include <ctype.h>
 #include <string.h>
+#include "Unit_E2E.h"
 
 #define MAX_BOOKINGS 100
 
-// เก็บข้อมูลชั่วคราว
+// เก็บข้อมูลชั่วคราววว
 int ids[MAX_BOOKINGS];
 char names[MAX_BOOKINGS][50];
 char destinations[MAX_BOOKINGS][50];
@@ -24,14 +25,14 @@ void delete_user();
 void sync_from_csv();
 
 void trim_newline(char *s);
-void display_menu();
-void welcome_screen();
 void to_lowercase(char *str);
 int is_number(const char *str);
 int is_name(const char *str);
 int is_valid_date(const char *str);
 void reset_ids();
 void generate_unique_code(char code[10]);
+void display_menu();
+void welcome_screen();
 
 void welcome_screen()
 {
@@ -39,20 +40,21 @@ void welcome_screen()
     printf("=====================================\n");
     printf("🌟 Travel booking management system 🌟\n");
     printf("=====================================\n\n");
-    Sleep(100);
+    Sleep(1000);
 }
 
 void display_menu()
 {
     printf("========== MAIN MENU ==========\n");
     printf("1. Save data to csv\n");
-    printf("2. Read data from csv\n");
+    printf("2. Load data from csv\n");
     printf("3. Add data\n");
     printf("4. Search data\n");
     printf("5. Update data\n");
     printf("6. Delete data\n");
-    printf("7. Display menu\n");
-    printf("8. Exit\n");
+    printf("7. Unit Test\n");
+    printf("8. E2E Test\n");
+    printf("9. Exit\n");
     printf("===============================\n");
 }
 
@@ -102,9 +104,19 @@ int main()
             delete_user();
             break;
         case 7:
-            display_menu();
+            unit_test();
+            printf("\nPlease press ENTER to go back to menu...");
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF){}
+            getchar();
             break;
-        case 8:
+            case 8:
+            e2e_test();
+            printf("\nPlease press ENTER to go back to menu...");
+            while ((c = getchar()) != '\n' && c != EOF){}
+            getchar();
+            break;
+        case 9:
             printf("Exiting program...\n");
             return 0;
         }
@@ -181,9 +193,9 @@ void add_user()
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
     {
-    } // clear buffer
+    } // clear buffer skibidi
 
-    // Name
+    // Name sybau
     while (1)
     {
         printf("Enter name (letters only, allow spaces): ");
@@ -484,6 +496,7 @@ void delete_user()
         // Shift array
         for (int i = id; i < bookingCount - 1; i++)
         {
+            strcpy(booking_codes[i], booking_codes[i + 1]);
             strcpy(names[i], names[i + 1]);
             strcpy(destinations[i], destinations[i + 1]);
             strcpy(dates[i], dates[i + 1]);
@@ -571,7 +584,7 @@ int is_valid_date(const char *str)
     int y, m, d;
     if (sscanf(str, "%d-%d-%d", &y, &m, &d) != 3)
         return 0;
-    if (y < 2024 || y > 2030)
+    if (y < 2025 || y > 2030)
         return 0;
     if (m < 1 || m > 12)
         return 0;
@@ -604,7 +617,7 @@ void generate_unique_code(char code[10])
         {
             if (strcmp(code, booking_codes[j]) == 0)
             {
-                unique = 0; // เจอซ้ำ → loop อีกรอบ
+                unique = 0;
                 break;
             }
         }
