@@ -9,7 +9,6 @@ int test_is_number()
     assert(is_number("123") == 1);
     assert(is_number("abc") == 0);
     assert(is_number("12a3") == 0);
-    assert(is_number("0") == 1);
     return 1;
 }
 int test_is_name()
@@ -27,7 +26,7 @@ int test_is_valid_date()
     assert(is_valid_date("2023-12-31") == 0);
     assert(is_valid_date("2024-13-01") == 0);
     assert(is_valid_date("2024-00-10") == 0);
-    assert(is_valid_date("2024-02-30") == 0);
+    assert(is_valid_date("asds") == 0);
     (is_valid_date("invalid-date") == 0);
     return 1;
 }

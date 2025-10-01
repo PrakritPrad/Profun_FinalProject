@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
+#include <windows.h> //ยังไม่ได้ทำ cross platform อย่าลืมม
 #include <ctype.h>
 #include <string.h>
 #include "Unit_E2E.h"
+#include <time.h> 
 
 #define MAX_BOOKINGS 100
 
@@ -63,6 +64,7 @@ int main()
     int choice;
     welcome_screen();
     sync_from_csv();
+    srand(time(NULL)); //กัน seed ซ้ำตอนเปิดโปรแกรมใหม่
     while (1)
     {
         display_menu();
@@ -233,7 +235,7 @@ void add_user()
 
     if (bookingCount < MAX_BOOKINGS)
     {
-        generate_unique_code(booking_codes[bookingCount]); // << สร้าง code
+        generate_unique_code(booking_codes[bookingCount]); 
 
         strcpy(names[bookingCount], name);
         strcpy(destinations[bookingCount], destination);
