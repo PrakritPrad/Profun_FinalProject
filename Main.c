@@ -156,7 +156,7 @@ void load_from_csv()
     char line[256];
     printf("-------------------------------------------------------------------------------\n");
     printf("| %-5s | %-8s | %-20s | %-15s | %-12s |\n",
-           "ID", "Booking ID", "Name", "Destination", "Date");
+           "No", "Booking ID", "Name", "Destination", "Date");
     printf("-------------------------------------------------------------------------------\n");
 
     while (fgets(line, sizeof(line), fp))
@@ -242,7 +242,7 @@ void add_user()
         strcpy(dates[bookingCount], date);
 
         printf("-----------------------------\n");
-        printf("\nBooking stored with ID %d\n", bookingCount + 1);
+        printf("\nBooking stored with No %d\n", bookingCount + 1);
         printf("Your booking ID is: %s\n", booking_codes[bookingCount]); // << แสดงรหัส
         printf("-----------------------------\n");
         printf("Please Save to confirm!!\n");
@@ -333,7 +333,7 @@ void search_user(const char *field)
             if (strcmp(keyword, temp) == 0) // เทียบกับ keyword ที่เป็น lower แล้ว
             {
                 printf("Booking Found:\n");
-                printf("ID: %d | Code: %s | Name: %s | Destination: %s | Date: %s\n",
+                printf("No: %d | Code: %s | Name: %s | Destination: %s | Date: %s\n",
                        i + 1, booking_codes[i], names[i], destinations[i], dates[i]);
                 found = 1;
                 break;
@@ -368,7 +368,7 @@ void search_user(const char *field)
 
                 if (id && code && name && destination && date)
                 {
-                    printf("ID: %s | Code: %s | Name: %s | Destination: %s | Date: %s\n",
+                    printf("No: %s | Code: %s | Name: %s | Destination: %s | Date: %s\n",
                            id, code, name, destination, date);
                     found = 1;
                 }
@@ -391,7 +391,7 @@ void update_user()
     int id;
     while (1)
     {
-        printf("Enter ID to update (0 to cancel): ");
+        printf("Enter No. to update (0 to cancel): ");
         scanf("%d", &id);
 
         if (id == 0)
@@ -404,7 +404,7 @@ void update_user()
 
         if (id < 1 || id > bookingCount)
         {
-            printf("Invalid ID!\n");
+            printf("Invalid No.!\n");
             continue;
         }
         break;
@@ -413,7 +413,7 @@ void update_user()
     id--; // index array
 
     printf("\nCurrent record:\n");
-    printf("ID: %d | Name: %s | Destination: %s | Date: %s\n",
+    printf("No: %d | Name: %s | Destination: %s | Date: %s\n",
            id + 1, names[id], destinations[id], dates[id]);
 
     int c;
@@ -460,7 +460,7 @@ void delete_user()
     int id;
     while (1)
     {
-        printf("Enter ID to delete (0 to cancel): ");
+        printf("Enter No. to delete (0 to cancel): ");
         scanf("%d", &id);
 
         if (id == 0)
@@ -472,7 +472,7 @@ void delete_user()
 
         if (id < 1 || id > bookingCount)
         {
-            printf("Invalid ID! Please try again.\n");
+            printf("Invalid No.! Please try again.\n");
             continue; // วนใหม่
         }
 
@@ -481,7 +481,7 @@ void delete_user()
     id--; // index
 
     printf("\nRecord to delete:\n");
-    printf("ID: %d | Name: %s | Destination: %s | Date: %s\n", id + 1, names[id], destinations[id], dates[id]);
+    printf("No: %d | Name: %s | Destination: %s | Date: %s\n", id + 1, names[id], destinations[id], dates[id]);
 
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
@@ -584,16 +584,51 @@ int is_name(const char *str)
 int is_valid_date(const char *str)
 {
     int y, m, d;
+
     if (sscanf(str, "%d-%d-%d", &y, &m, &d) != 3)
         return 0;
+
+
     if (y < 2025 || y > 2030)
         return 0;
+
     if (m < 1 || m > 12)
         return 0;
-    if (d < 1 || d > 31)
+
+        int days_in_month[] = {0,
+        31, // มก
+        28, // กุม
+        31, // มี
+        30, // เม
+        31, // พฤษ
+        30, // มิถุ
+        31, // กรก
+        31, // สิ
+        30, // กัน
+        31, // ตุ
+        30, // พฤษ
+        31  // ธัน
+    };
+
+ 
+    int leap = ( (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0) );
+    if (leap) days_in_month[2] = 29;
+
+    if (d < 1 || d > days_in_month[m])
         return 0;
-    return 1;
+
+    if (y == 2025) {
+        if (m < 10) return 0;
+        if (m == 10 && d < 1) return 0;
+    }
+    if (y == 2030) {
+        if (m > 12) return 0;
+        if (m == 12 && d > 31) return 0; 
+    }
+
+    return 1; 
 }
+
 
 void reset_ids()
 {
