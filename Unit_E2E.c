@@ -22,7 +22,7 @@ int test_is_name()
 }
 int test_is_valid_date()
 {
-    assert(is_valid_date("2025-05-20") == 1);
+    assert(is_valid_date("2025-10-20") == 1);
     assert(is_valid_date("2023-12-31") == 0);
     assert(is_valid_date("2024-13-01") == 0);
     assert(is_valid_date("2024-00-10") == 0);

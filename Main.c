@@ -9,7 +9,6 @@
 #define MAX_BOOKINGS 100
 
 // เก็บข้อมูลชั่วคราววว
-int ids[MAX_BOOKINGS];
 char names[MAX_BOOKINGS][50];
 char destinations[MAX_BOOKINGS][50];
 char dates[MAX_BOOKINGS][20];
@@ -47,7 +46,6 @@ void welcome_screen()
 void display_menu()
 {
     printf("========== MAIN MENU ==========\n");
-    printf("1. Save data to csv\n");
     printf("2. Load data from csv\n");
     printf("3. Add data\n");
     printf("4. Search data\n");
@@ -71,7 +69,7 @@ int main()
         printf("Enter your choice: ");
         if (scanf("%d", &choice) != 1)
         {
-            printf("Invalid input! Please enter a number between 1 and 8.\n");
+            printf("Invalid input! Please enter a number between 1 and 9.\n");
             int c;
             while ((c = getchar()) != '\n' && c != EOF)
             {
@@ -79,9 +77,9 @@ int main()
             continue;
         }
 
-        if (choice < 1 || choice > 8)
+        if (choice < 1 || choice >10)
         {
-            printf("Invalid input! Please enter a number between 1 and 8.\n");
+            printf("Invalid input! Please enter a number between 1 and 9.\n");
             continue;
         }
 
@@ -120,7 +118,7 @@ int main()
             break;
         case 9:
             printf("Exiting program...\n");
-            return 0;
+            exit(0);
         }
     }
     return 0;
@@ -191,74 +189,60 @@ void load_from_csv()
 void add_user()
 {
     char name[50], destination[50], date[20];
-
     int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-    } // clear buffer skibidi
+    while ((c = getchar()) != '\n' && c != EOF) {} // clear buffer
 
-    // Name sybau
     while (1)
     {
         printf("Enter name (letters only, allow spaces): ");
-        if (fgets(name, sizeof(name), stdin) == NULL)
-            continue;
+        if (fgets(name, sizeof(name), stdin) == NULL) continue;
         trim_newline(name);
-        if (is_name(name))
-            break;
+        if (is_name(name)) break;
         printf("Invalid Name! Try again.\n");
     }
 
-    // Destination
     while (1)
     {
         printf("Enter destination (letters only, allow spaces): ");
-        if (fgets(destination, sizeof(destination), stdin) == NULL)
-            continue;
+        if (fgets(destination, sizeof(destination), stdin) == NULL) continue;
         trim_newline(destination);
-        if (is_name(destination))
-            break;
+        if (is_name(destination)) break;
         printf("Invalid Destination! Try again.\n");
     }
 
-    // Date
     while (1)
     {
         printf("Enter date (YYYY-MM-DD): ");
-        if (fgets(date, sizeof(date), stdin) == NULL)
-            continue;
+        if (fgets(date, sizeof(date), stdin) == NULL) continue;
         trim_newline(date);
-        if (is_valid_date(date))
-            break;
+        if (is_valid_date(date)) break;
         printf("Invalid Date format! Try again.\n");
     }
 
     if (bookingCount < MAX_BOOKINGS)
     {
-        generate_unique_code(booking_codes[bookingCount]); 
-
+        generate_unique_code(booking_codes[bookingCount]);
         strcpy(names[bookingCount], name);
         strcpy(destinations[bookingCount], destination);
         strcpy(dates[bookingCount], date);
-
-        printf("-----------------------------\n");
-        printf("\nBooking stored with No %d\n", bookingCount + 1);
-        printf("Your booking ID is: %s\n", booking_codes[bookingCount]); // << แสดงรหัส
-        printf("-----------------------------\n");
-        printf("Please Save to confirm!!\n");
-
         bookingCount++;
-        printf("\nPlease press ENTER to go back to menu...");
-        while ((c = getchar()) != '\n' && c != EOF)
-        {
-        }
-    }
 
+        
+        printf("-----------------------------\n");
+        printf("Booking added successfully!\n");
+        printf("Your booking ID is: %s\n", booking_codes[bookingCount - 1]);
+        printf("-----------------------------\n");
+        save_to_csv(); 
+
+        printf("\nPlease press ENTER to go back to menu...");
+        while ((c = getchar()) != '\n' && c != EOF) {}
+    }
     else
     {
         printf("Memory full, cannot add more!\n");
     }
 }
+
 
 void search_menu()
 {
@@ -398,10 +382,8 @@ void update_user()
         {
             printf("Update canceled by user.\n");
             Sleep(1000);
-            display_menu();
             return;
         }
-
         if (id < 1 || id > bookingCount)
         {
             printf("Invalid No.!\n");
@@ -417,9 +399,7 @@ void update_user()
            id + 1, names[id], destinations[id], dates[id]);
 
     int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-    } // clear buffer
+    while ((c = getchar()) != '\n' && c != EOF) {} // clear buffer
 
     char confirm[10];
     printf("Do you want to update this record? (yes/no): ");
@@ -433,7 +413,6 @@ void update_user()
         return;
     }
 
-    // --- กรอกค่าใหม่ ---
     printf("Enter new name: ");
     fgets(names[id], sizeof(names[id]), stdin);
     trim_newline(names[id]);
@@ -452,8 +431,12 @@ void update_user()
         return;
     }
 
-    printf("Pleas Save to confirm!!!\n");
+    save_to_csv(); 
+
+
+    Sleep(800);
 }
+
 
 void delete_user()
 {
@@ -473,20 +456,18 @@ void delete_user()
         if (id < 1 || id > bookingCount)
         {
             printf("Invalid No.! Please try again.\n");
-            continue; // วนใหม่
+            continue;
         }
-
-        break; // valid แล้ว ออกจาก loop
+        break;
     }
-    id--; // index
+    id--;
 
     printf("\nRecord to delete:\n");
-    printf("No: %d | Name: %s | Destination: %s | Date: %s\n", id + 1, names[id], destinations[id], dates[id]);
+    printf("No: %d | Name: %s | Destination: %s | Date: %s\n",
+           id + 1, names[id], destinations[id], dates[id]);
 
     int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-    } // clear buffer
+    while ((c = getchar()) != '\n' && c != EOF) {}
 
     char confirm[10];
     printf("Are you sure you want to delete this record? (yes/no): ");
@@ -495,7 +476,6 @@ void delete_user()
 
     if (strcmp(confirm, "yes") == 0 || strcmp(confirm, "YES") == 0)
     {
-        // Shift array
         for (int i = id; i < bookingCount - 1; i++)
         {
             strcpy(booking_codes[i], booking_codes[i + 1]);
@@ -505,9 +485,9 @@ void delete_user()
         }
         bookingCount--;
 
-        printf("Pleas Save to confirm \n");
+        save_to_csv(); // 🔥 Auto-save หลังลบ
+
         Sleep(1000);
-        display_menu();
     }
     else
     {
@@ -515,6 +495,7 @@ void delete_user()
         Sleep(1000);
     }
 }
+
 
 void sync_from_csv()
 {
@@ -630,13 +611,6 @@ int is_valid_date(const char *str)
 }
 
 
-void reset_ids()
-{
-    for (int i = 0; i < bookingCount; i++)
-    {
-        ids[i] = i + 1;
-    }
-}
 
 void generate_unique_code(char code[10])
 {
