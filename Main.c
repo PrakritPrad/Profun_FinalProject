@@ -56,7 +56,7 @@ void load_from_csv();
 void update_passenger(Flight *f);
 void generate_unique_code(char code[10]);
 void Run_units();
-void Run_E2E_Tests(void);
+void Run_E2E_Tests();
 
 int is_seat_booked_on_date(Flight *f, const char *seatID, const char *date);
 void trim(char *s);

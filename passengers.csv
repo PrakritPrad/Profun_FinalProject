@@ -1,6 +1,3 @@
 FlightCode,From,To,Date,SeatID,Name,Status,Code
-FL001,Bangkok,Paris,2025-12-25,A1,Jirayu Wittayakarn,Booked,M001
-FL002,Chiangmai,Seoul,2025-12-31,B3,Piyada Sooksai,Booked,M002
-FL003,Phuket,Tokyo,2026-01-05,C2,Thanakorn Mangmee,Booked,M003
-FL001,Bangkok,Paris,2025-12-12,A1,Prakrit khwan,Booked,R13934
-FL001,Bangkok,Paris,2025-12-12,B1,asdasd asdasd,Booked,R23094
+FL001,Bangkok,Paris,2025-12-12,A1,Prakrit a,Booked,R06602
+FL002,Chiangmai,Seoul,2025-12-12,C1,asdasd asd,Booked,R23642

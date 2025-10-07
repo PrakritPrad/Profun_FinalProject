@@ -32,28 +32,13 @@ output/
 
 ### 🧱 1. คอมไพล์โปรแกรมหลัก
 ```bash
-gcc Main.c -o app.exe
+gcc .\Main.c .\E2E_Test.c .\Unit_Test.c -o .\output\app.exe
 ```
 จากนั้นรันได้ด้วย
 ```bash
-./app.exe
+.\output\app.exe
 ```
 
----
-
-### 🧪 2. คอมไพล์และรัน Unit Test
-```bash
-gcc Unit_Test.c -o unit_test.exe
-./unit_test.exe
-```
-
----
-
-### 🔄 3. คอมไพล์และรัน End-to-End Test
-```bash
-gcc E2E_Test.c -o e2e_test.exe
-./e2e_test.exe
-```
 
 ---
 
@@ -96,11 +81,12 @@ gcc E2E_Test.c -o e2e_test.exe
 ## 🏁 ตัวอย่างการรัน
 
 ```
-==== Flight Booking System ====
-1) View Flights
-2) Manage Seats
-3) Search Passenger
-4) Save & Exit
+--- Manage FL001 (Bangkok -> Paris) ---
+1) View Seats
+2) Add Passenger
+3) Cancel Passenger
+4) Update Passenger
+5) Back
 Choose: 1
 
 Flight: FL001 | From: Bangkok | To: Paris | Date: 2025-10-29
@@ -112,4 +98,4 @@ A2 [Booked by Somchai]
 
 ---
 
-© 2025 Cyber Engi — All Rights Reserved 🛫
+© Prakrit  🛫

@@ -4,6 +4,14 @@
 #include <assert.h>
 #include "booking_system.h"
 
+#define TEST_CSV "test_passengers.csv"
+
+// ================================================================
+// 🧩 ใช้ตัวแปรทดสอบแยกจากระบบจริง
+// ================================================================
+static Booking e2eBookings[1000];
+static int e2eBookingCount = 0;
+
 // ================================================================
 // Assertion Helper Functions
 // ================================================================
@@ -49,14 +57,14 @@ void test_complete_flight_booking_workflow()
 
     // ==================== ARRANGE ====================
     printf("[ARRANGE] Prepare test environment\n");
-    const char *test_filename = "test_passengers.csv";
+    const char *test_filename = TEST_CSV;
 
-    bookingCount = 0;
+    e2eBookingCount = 0;
     for (int i = 0; i < 1000; i++)
-        memset(&allBookings[i], 0, sizeof(Booking));
+        memset(&e2eBookings[i], 0, sizeof(Booking));
 
     remove(test_filename);
-    init_flights();
+    init_flights(); // เรียกได้ ปลอดภัยเพราะไม่แตะ global ที่เราใช้
 
     struct
     {
@@ -91,7 +99,7 @@ void test_complete_flight_booking_workflow()
         strcpy(b.name, test_bookings[i].name);
         strcpy(b.code, test_bookings[i].code);
         b.booked = 1;
-        allBookings[bookingCount++] = b;
+        e2eBookings[e2eBookingCount++] = b;
         printf("   Added: %s (%s -> %s, Seat %s)\n", b.name, b.from, b.to, b.seatID);
     }
 
@@ -99,25 +107,25 @@ void test_complete_flight_booking_workflow()
     FILE *fp = fopen(test_filename, "w");
     assert(fp != NULL);
     fprintf(fp, "FlightCode,From,To,Date,SeatID,Name,Status,Code\n");
-    for (int i = 0; i < bookingCount; i++)
+    for (int i = 0; i < e2eBookingCount; i++)
     {
         fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s\n",
-                allBookings[i].flightCode,
-                allBookings[i].from,
-                allBookings[i].to,
-                allBookings[i].date,
-                allBookings[i].seatID,
-                allBookings[i].name,
-                allBookings[i].booked ? "Booked" : "Available",
-                allBookings[i].code);
+                e2eBookings[i].flightCode,
+                e2eBookings[i].from,
+                e2eBookings[i].to,
+                e2eBookings[i].date,
+                e2eBookings[i].seatID,
+                e2eBookings[i].name,
+                e2eBookings[i].booked ? "Booked" : "Available",
+                e2eBookings[i].code);
     }
     fclose(fp);
     printf("   Saved mock CSV successfully.\n");
 
     // Step 3: Clear memory
-    bookingCount = 0;
+    e2eBookingCount = 0;
     for (int i = 0; i < 1000; i++)
-        memset(&allBookings[i], 0, sizeof(Booking));
+        memset(&e2eBookings[i], 0, sizeof(Booking));
     printf("   Cleared in-memory data.\n");
 
     // Step 4: Reload from mock CSV
@@ -132,10 +140,10 @@ void test_complete_flight_booking_workflow()
         sscanf(line, "%9[^,],%29[^,],%29[^,],%19[^,],%3[^,],%49[^,],%19[^,],%9[^,\n]",
                b.flightCode, b.from, b.to, b.date, b.seatID, b.name, status, b.code);
         b.booked = (strcmp(status, "Booked") == 0);
-        allBookings[bookingCount++] = b;
+        e2eBookings[e2eBookingCount++] = b;
     }
     fclose(fp);
-    printf("   Reloaded %d bookings from CSV.\n", bookingCount);
+    printf("   Reloaded %d bookings from CSV.\n", e2eBookingCount);
 
     // แสดงข้อมูลที่โหลดมา
     printf("\n[DEBUG] Contents of test_passengers.csv after reload:\n");
@@ -143,16 +151,16 @@ void test_complete_flight_booking_workflow()
     printf("%-8s %-12s %-12s %-12s %-6s %-20s %-8s\n",
            "Flight", "From", "To", "Date", "Seat", "Name", "Code");
     printf("------------------------------------------------------------\n");
-    for (int i = 0; i < bookingCount; i++)
+    for (int i = 0; i < e2eBookingCount; i++)
     {
         printf("%-8s %-12s %-12s %-12s %-6s %-20s %-8s\n",
-               allBookings[i].flightCode,
-               allBookings[i].from,
-               allBookings[i].to,
-               allBookings[i].date,
-               allBookings[i].seatID,
-               allBookings[i].name,
-               allBookings[i].code);
+               e2eBookings[i].flightCode,
+               e2eBookings[i].from,
+               e2eBookings[i].to,
+               e2eBookings[i].date,
+               e2eBookings[i].seatID,
+               e2eBookings[i].name,
+               e2eBookings[i].code);
     }
     printf("------------------------------------------------------------\n");
 
@@ -160,25 +168,25 @@ void test_complete_flight_booking_workflow()
     printf("\n[ASSERT] Validate results\n");
 
     assert_equal_int(1, file_exists(test_filename), "Mock CSV file was created");
-    assert_equal_int(expected_count, bookingCount, "Booking count after reload");
+    assert_equal_int(expected_count, e2eBookingCount, "Booking count after reload");
 
     for (int i = 0; i < expected_count; i++)
     {
         char msg[100];
         sprintf(msg, "Booking %d Flight Code", i + 1);
-        assert_equal_string(test_bookings[i].flightCode, allBookings[i].flightCode, msg);
+        assert_equal_string(test_bookings[i].flightCode, e2eBookings[i].flightCode, msg);
 
         sprintf(msg, "Booking %d Passenger Name", i + 1);
-        assert_equal_string(test_bookings[i].name, allBookings[i].name, msg);
+        assert_equal_string(test_bookings[i].name, e2eBookings[i].name, msg);
 
         sprintf(msg, "Booking %d Destination", i + 1);
-        assert_equal_string(test_bookings[i].to, allBookings[i].to, msg);
+        assert_equal_string(test_bookings[i].to, e2eBookings[i].to, msg);
 
         sprintf(msg, "Booking %d Date", i + 1);
-        assert_equal_string(test_bookings[i].date, allBookings[i].date, msg);
+        assert_equal_string(test_bookings[i].date, e2eBookings[i].date, msg);
 
         sprintf(msg, "Booking %d Seat", i + 1);
-        assert_equal_string(test_bookings[i].seatID, allBookings[i].seatID, msg);
+        assert_equal_string(test_bookings[i].seatID, e2eBookings[i].seatID, msg);
     }
 
     int line_count = 0;
@@ -203,7 +211,7 @@ void test_data_persistence_and_search()
 
     // ==================== ARRANGE ====================
     printf("[ARRANGE] Setup mock data file\n");
-    const char *test_filename = "test_passengers.csv";
+    const char *test_filename = TEST_CSV;
     FILE *fp = fopen(test_filename, "w");
     assert(fp != NULL);
     fprintf(fp, "FlightCode,From,To,Date,SeatID,Name,Status,Code\n");
@@ -215,7 +223,7 @@ void test_data_persistence_and_search()
 
     // ==================== ACT ====================
     printf("\n[ACT] Load data and simulate search\n");
-    bookingCount = 0;
+    e2eBookingCount = 0;
     fp = fopen(test_filename, "r");
     assert(fp != NULL);
     char line[256];
@@ -227,39 +235,39 @@ void test_data_persistence_and_search()
         sscanf(line, "%9[^,],%29[^,],%29[^,],%19[^,],%3[^,],%49[^,],%19[^,],%9[^,\n]",
                b.flightCode, b.from, b.to, b.date, b.seatID, b.name, status, b.code);
         b.booked = (strcmp(status, "Booked") == 0);
-        allBookings[bookingCount++] = b;
+        e2eBookings[e2eBookingCount++] = b;
     }
     fclose(fp);
 
     // แสดงข้อมูลโหลดมาทั้งหมด
     printf("\n[DEBUG] Loaded bookings from %s:\n", test_filename);
     printf("------------------------------------------------------------\n");
-    for (int i = 0; i < bookingCount; i++)
+    for (int i = 0; i < e2eBookingCount; i++)
     {
         printf("%s | %s -> %s | %s | %s | %s\n",
-               allBookings[i].flightCode,
-               allBookings[i].from,
-               allBookings[i].to,
-               allBookings[i].date,
-               allBookings[i].seatID,
-               allBookings[i].name);
+               e2eBookings[i].flightCode,
+               e2eBookings[i].from,
+               e2eBookings[i].to,
+               e2eBookings[i].date,
+               e2eBookings[i].seatID,
+               e2eBookings[i].name);
     }
     printf("------------------------------------------------------------\n");
 
     int found_paris = 0;
     int found_tokyo = 0;
-    for (int i = 0; i < bookingCount; i++)
+    for (int i = 0; i < e2eBookingCount; i++)
     {
-        if (strstr(allBookings[i].to, "Paris"))
+        if (strstr(e2eBookings[i].to, "Paris"))
             found_paris = 1;
-        if (strstr(allBookings[i].to, "Tokyo"))
+        if (strstr(e2eBookings[i].to, "Tokyo"))
             found_tokyo = 1;
     }
 
     // ==================== ASSERT ====================
     printf("\n[ASSERT] Validate results\n");
     assert_equal_int(1, file_exists(test_filename), "Mock CSV file exists");
-    assert_equal_int(3, bookingCount, "All mock records loaded successfully");
+    assert_equal_int(3, e2eBookingCount, "All mock records loaded successfully");
     assert_equal_int(1, found_paris, "Search found passenger to Paris");
     assert_equal_int(1, found_tokyo, "Search found passenger to Tokyo");
 
