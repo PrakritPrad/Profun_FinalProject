@@ -42,7 +42,7 @@ typedef struct
 Booking allBookings[1000];
 int bookingCount = 0;
 
-// ==== Function Prototypes ====
+
 void init_flights();
 void main_menu();
 void manage_flight(Flight *f);
@@ -56,7 +56,7 @@ void load_from_csv();
 void update_passenger(Flight *f);
 void generate_unique_code(char code[10]);
 void Run_units();
-
+void Run_E2E_Tests(void);
 
 int is_seat_booked_on_date(Flight *f, const char *seatID, const char *date);
 void trim(char *s);
@@ -193,7 +193,7 @@ void main_menu()
         else if (choice == 6)
         {
 
-            search_menu();
+            Run_E2E_Tests();
 
             continue;
         }
@@ -292,7 +292,7 @@ void view_seats(Flight *f)
 
     int bookedCount = 0;
 
-    // ✅ ดึงข้อมูลจาก allBookings (ฐานข้อมูลรวม)
+    //   ดึงข้อมูลจาก allBookings (ฐานข้อมูลรวม)
     for (int i = 0; i < bookingCount; i++)
     {
         if (strcmp(allBookings[i].flightCode, f->code) == 0 &&
@@ -310,7 +310,7 @@ void view_seats(Flight *f)
     printf("-------------------------------------------------------\n");
     printf("Total booked on %s: %d / %d seats\n", day, bookedCount, MAX_SEATS);
 
-    // ✅ สร้าง seat map โดยเช็กแต่ละที่นั่งในวันนั้นจริง
+    //   สร้าง seat map โดยเช็กแต่ละที่นั่งในวันนั้นจริง
     printf("\nSeat map for %s (%s -> %s, %s)\n",
            f->code, f->from, f->to, day);
     printf("----------------------------------\n");
@@ -396,7 +396,7 @@ void add_passenger(Flight *f)
             {
                 seatFound = 1;
 
-                // ✅ เช็คในฐานข้อมูลก่อนว่าที่นั่งวันนี้ถูกจองหรือยัง
+                //   เช็คในฐานข้อมูลก่อนว่าที่นั่งวันนี้ถูกจองหรือยัง
                 if (is_seat_booked_on_date(f, seat, travelDate))
                 {
                     printf("\nSeat %s is already booked for %s! Please choose another\n",
@@ -434,7 +434,7 @@ void add_passenger(Flight *f)
                 f->seats[i].booked = 1;
                 generate_unique_code(f->seats[i].code);
 
-                // ✅ เตรียม Booking ใหม่
+                //   เตรียม Booking ใหม่
                 Booking b;
                 strcpy(b.flightCode, f->code);
                 strcpy(b.from, f->from);
@@ -524,7 +524,7 @@ void cancel_passenger(Flight *f)
 
         found = 0;
 
-        // ✅ หาในฐานข้อมูล allBookings แบบไม่สนตัวพิมพ์ใหญ่-เล็ก
+        //   หาในฐานข้อมูล allBookings แบบไม่สนตัวพิมพ์ใหญ่-เล็ก
         for (int i = 0; i < bookingCount; i++)
         {
             // ล้างช่องว่างและ \r ที่อาจมาจาก CSV
@@ -557,7 +557,7 @@ void cancel_passenger(Flight *f)
                     return;
                 }
 
-                // ✅ ยกเลิกจอง
+                //  ยกเลิกจอง
                 allBookings[i].booked = 0;
                 strcpy(allBookings[i].name, "");
                 strcpy(allBookings[i].code, "");
@@ -1061,7 +1061,7 @@ int is_leap_year(int year)
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-// 🔹 ตรวจสอบวันที่ถูกต้องและต้องเป็นอนาคต
+// ตรวจสอบวันที่ถูกต้องและต้องเป็นอนาคต
 int is_valid_future_date(const char *dateStr)
 {
     int y, m, d;
@@ -1071,17 +1071,17 @@ int is_valid_future_date(const char *dateStr)
         return 0;
     }
 
-    // 🔸 ตรวจปี-เดือน-วันเบื้องต้น
+    //  ตรวจปี-เดือน-วันเบื้องต้น
     if (y < 2025 || m < 1 || m > 12 || d < 1 || d > 31)
     {
         printf("Invalid date components.\n");
         return 0;
     }
 
-    // 🔸 จำนวนวันสูงสุดในแต่ละเดือน
+    //  จำนวนวันสูงสุดในแต่ละเดือน
     int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    // 🔸 ปรับกุมภา 29 วัน ถ้าเป็น leap year
+    //  ปรับกุมภา 29 วัน ถ้าเป็น leap year
     if (is_leap_year(y))
         daysInMonth[2] = 29;
 
@@ -1091,7 +1091,7 @@ int is_valid_future_date(const char *dateStr)
         return 0;
     }
 
-    // 🔸 ตรวจว่าต้องเป็น "วันนี้หรืออนาคต"
+    //  ตรวจว่าต้องเป็น "วันนี้หรืออนาคต"
     time_t t = time(NULL);
     struct tm *now = localtime(&t);
 
@@ -1105,7 +1105,7 @@ int is_valid_future_date(const char *dateStr)
         return 0;
     }
 
-    return 1; // ✅ ผ่านทั้งหมด
+    return 1;
 }
 int str_casecmp(const char *a, const char *b)
 {
@@ -1121,7 +1121,7 @@ int str_casecmp(const char *a, const char *b)
     return *a - *b;
 }
 
-// ✅ ตัดช่องว่างซ้ายขวาออก (กันบั๊กจาก CSV)
+//  ตัดช่องว่างซ้ายขวาออก (กันบั๊กจาก CSV)
 void trim(char *s)
 {
     int len = strlen(s);

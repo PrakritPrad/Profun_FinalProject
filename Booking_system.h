@@ -60,7 +60,8 @@ void add_passenger(Flight *f);
 void cancel_passenger(Flight *f);
 void update_passenger(Flight *f);
 void search_menu();
-
+void Run_E2E_Tests(void);
+    
 // ─── CSV ───
 void save_all_to_csv();
 void load_from_csv();
