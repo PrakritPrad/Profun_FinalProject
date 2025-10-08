@@ -1,5 +1,4 @@
 FlightCode,From,To,Date,SeatID,Name,Status,Code
-FL003,Phuket,Tokyo,2025-12-12,A1,Ã,Available,
 FL002,Chiangmai,Seoul,2025-12-12,C1,asdasd asd,Booked,R23642
 FL001,Bangkok,Paris,2025-12-12,A2,asdasd asd,Booked,R23642
 FL001,Bangkok,Paris,2025-12-12,A1,sdfsdf sdfsdf,Booked,R06098

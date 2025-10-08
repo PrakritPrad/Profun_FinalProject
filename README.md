@@ -14,9 +14,11 @@
 ## 📁 โครงสร้างไฟล์
 
 ```
-output/
+Profun_FinalProject/
 │
-├── app.exe                # โปรแกรมหลัก (ไฟล์รัน)
+├── output
+    │
+    ├── app.exe             # โปรแกรมหลัก (ไฟล์รัน)
 ├── Main.c                 # main() ของระบบ
 ├── Booking_system.h       # Header รวมโครงสร้างและฟังก์ชันหลัก
 ├── Unit_Test.c            # Unit test แต่ละฟังก์ชันย่อย
