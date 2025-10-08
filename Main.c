@@ -21,7 +21,6 @@ typedef struct
     char code[10];
     char from[30];
     char to[30];
-    char date[20]; // Done เก็บวันที่บิน
     Seat seats[MAX_SEATS];
 } Flight;
 
@@ -42,7 +41,6 @@ typedef struct
 Booking allBookings[1000];
 int bookingCount = 0;
 
-
 void init_flights();
 void main_menu();
 void manage_flight(Flight *f);
@@ -58,6 +56,7 @@ void generate_unique_code(char code[10]);
 void Run_units();
 void Run_E2E_Tests();
 
+void to_uppercase(char *str);
 int is_seat_booked_on_date(Flight *f, const char *seatID, const char *date);
 void trim(char *s);
 int str_casecmp(const char *a, const char *b);
@@ -292,7 +291,6 @@ void view_seats(Flight *f)
 
     int bookedCount = 0;
 
-    //   ดึงข้อมูลจาก allBookings (ฐานข้อมูลรวม)
     for (int i = 0; i < bookingCount; i++)
     {
         if (strcmp(allBookings[i].flightCode, f->code) == 0 &&
@@ -382,7 +380,7 @@ void add_passenger(Flight *f)
     {
         printf("Enter seat ID to book (A1->C5): ");
         scanf("%3s", seat);
-        to_lowercase(seat);
+        to_uppercase(seat);
 
         seatFound = 0;
 
@@ -390,7 +388,7 @@ void add_passenger(Flight *f)
         {
             char seatLower[4];
             strcpy(seatLower, f->seats[i].seatID);
-            to_lowercase(seatLower);
+            to_uppercase(seatLower);
 
             if (strcmp(seatLower, seat) == 0)
             {
@@ -404,10 +402,10 @@ void add_passenger(Flight *f)
                     break; // กลับไปให้กรอกใหม่
                 }
 
-                // 🆕 บันทึกวันที่บิน
+                // บันทึกวันที่บิน
                 strcpy(f->seats[i].date, travelDate);
 
-                // 🧍‍♂️ กรอกชื่อผู้โดยสาร
+                // กรอกชื่อผู้โดยสาร
                 while (1)
                 {
                     printf("Enter passenger name (First Last): ");
@@ -445,7 +443,7 @@ void add_passenger(Flight *f)
                 strcpy(b.code, f->seats[i].code);
                 b.booked = 1;
 
-                // 🔄 ถ้ามี booking เดิม (flight+seat+date) → เขียนทับ
+                // ถ้ามี booking เดิม (flight+seat+date) → เขียนทับ
                 int replaced = 0;
                 for (int j = 0; j < bookingCount; j++)
                 {
@@ -459,13 +457,13 @@ void add_passenger(Flight *f)
                     }
                 }
 
-                // ➕ ถ้าไม่มี ให้เพิ่มใหม่
+                // ถ้าไม่มี ให้เพิ่มใหม่
                 if (!replaced && bookingCount < 1000)
                     allBookings[bookingCount++] = b;
 
-                // 💾 เขียนไฟล์ใหม่ทั้งไฟล์ (ไม่ append)
+                // เขียนไฟล์ใหม่ทั้งไฟล์ (ไม่ append)
                 save_all_to_csv();
-
+                load_from_csv();
                 printf("\n-----------------------------\n");
                 printf("Seat: %s booked successfully for %s!\n",
                        f->seats[i].seatID, f->seats[i].name);
@@ -514,7 +512,7 @@ void cancel_passenger(Flight *f)
 
         seat[strcspn(seat, "\n")] = '\0'; // ตัด newline
         trim(seat);                       // กันช่องว่างหลุด
-        to_lowercase(seat);
+        to_uppercase(seat);
 
         if (strcmp(seat, "0") == 0)
         {
@@ -566,6 +564,7 @@ void cancel_passenger(Flight *f)
                        allBookings[i].seatID, travelDate);
 
                 save_all_to_csv();
+                load_from_csv();
                 return;
             }
         }
@@ -598,7 +597,7 @@ void update_passenger(Flight *f)
     {
         printf("Enter seat ID to update (A1 -> C5): ");
         scanf("%7s", seatID);
-        to_lowercase(seatID);
+        to_uppercase(seatID);
         while (getchar() != '\n')
             ;
 
@@ -682,6 +681,7 @@ void update_passenger(Flight *f)
                 strcpy(allBookings[foundIndex].name, newName);
                 printf("Name updated successfully.\n");
                 save_all_to_csv();
+                load_from_csv();
             }
             else
             {
@@ -700,7 +700,7 @@ void update_passenger(Flight *f)
         {
             printf("Enter new seat ID (A1 -> C5): ");
             scanf("%7s", newSeat);
-            to_lowercase(newSeat);
+            to_uppercase(newSeat);
             while (getchar() != '\n')
                 ;
 
@@ -726,6 +726,7 @@ void update_passenger(Flight *f)
             strcpy(allBookings[foundIndex].seatID, newSeat);
             printf("Seat changed successfully to %s\n", newSeat);
             save_all_to_csv();
+            load_from_csv();
             return;
         }
     }
@@ -773,7 +774,7 @@ void update_passenger(Flight *f)
         {
             printf("Enter seat ID in %s (A1 -> C5): ", target->code);
             scanf("%7s", newSeat);
-            to_lowercase(newSeat);
+            to_uppercase(newSeat);
             while (getchar() != '\n')
                 ;
 
@@ -817,6 +818,7 @@ void update_passenger(Flight *f)
         printf("Passenger moved successfully to %s seat %s on %s\n",
                target->code, newSeat, newDate);
         save_all_to_csv();
+        load_from_csv();
         return;
     }
 
@@ -979,7 +981,11 @@ void load_from_csv()
     }
 
     fclose(fp);
-    printf("Loaded %d unique bookings from CSV...\n", bookingCount);
+    for (int i = 0; i < bookingCount; i++)
+    {
+        to_uppercase(allBookings[i].seatID);
+    }
+    printf("Loaded %d bookings from CSV...\n", bookingCount);
 }
 
 void generate_unique_code(char code[10])
@@ -1129,4 +1135,12 @@ void trim(char *s)
         s[--len] = '\0';
     while (*s && isspace((unsigned char)*s))
         memmove(s, s + 1, len--);
+}
+void to_uppercase(char *str)
+{
+    for (int i = 0; str[i]; i++)
+    {
+        if (str[i] >= 'a' && str[i] <= 'z')
+            str[i] -= 32;
+    }
 }

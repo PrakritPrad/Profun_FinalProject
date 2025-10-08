@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "booking_system.h": "c"
+        "booking_system.h": "c",
+        "assert.h": "c"
     }
 }

@@ -6,15 +6,11 @@
 
 #define TEST_CSV "test_passengers.csv"
 
-// ================================================================
-// 🧩 ใช้ตัวแปรทดสอบแยกจากระบบจริง
-// ================================================================
+
 static Booking e2eBookings[1000];
 static int e2eBookingCount = 0;
 
-// ================================================================
-// Assertion Helper Functions
-// ================================================================
+
 void assert_equal_int(int expected, int actual, const char *message)
 {
     if (expected == actual)
@@ -33,9 +29,7 @@ void assert_equal_string(const char *expected, const char *actual, const char *m
     assert(strcmp(expected, actual) == 0);
 }
 
-// ================================================================
-// Helper Function: Check if file exists
-// ================================================================
+
 int file_exists(const char *filename)
 {
     FILE *f = fopen(filename, "r");
