@@ -364,8 +364,8 @@ void add_passenger(Flight *f)
     char seat[4];
     int seatFound = 0;
 
-    // 🔹 ถามวันบินก่อน
-    // 🔹 ถามวันบินก่อน (พร้อมตรวจ format + เงื่อนไข)
+    //  ถามวันบินก่อน
+    //  ถามวันบินก่อน (พร้อมตรวจ format + เงื่อนไข)
     char travelDate[20];
     while (1)
     {
@@ -489,7 +489,7 @@ void cancel_passenger(Flight *f)
     char travelDate[20];
     int found = 0;
 
-    // 🔹 ถามวันที่และตรวจ format + เงื่อนไขอนาคต
+    //  ถามวันที่และตรวจ format + เงื่อนไขอนาคต
     while (1)
     {
         printf("Enter travel date (YYYY-MM-DD): ");
@@ -929,7 +929,7 @@ void search_menu()
     }
 }
 
-// ========== SAVE TO CSV ==========
+
 
 // ========== LOAD FROM CSV ==========
 void load_from_csv()
@@ -987,6 +987,7 @@ void load_from_csv()
     }
     printf("Loaded %d bookings from CSV...\n", bookingCount);
 }
+
 
 void generate_unique_code(char code[10])
 {
@@ -1078,7 +1079,7 @@ int is_valid_future_date(const char *dateStr)
     }
 
     //  ตรวจปี-เดือน-วันเบื้องต้น
-    if (y < 2025 || m < 1 || m > 12 || d < 1 || d > 31)
+    if (y < 2025 || m < 1 || m > 12 || d < 1 || d > 31 || y > 2030)
     {
         printf("Invalid date components.\n");
         return 0;

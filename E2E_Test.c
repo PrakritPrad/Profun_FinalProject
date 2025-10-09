@@ -41,15 +41,15 @@ int file_exists(const char *filename)
     return 0;
 }
 
-// ================================================================
+
 // END-TO-END TEST CASE 1: Complete Flight Booking Workflow
-// ================================================================
+
 void test_complete_flight_booking_workflow()
 {
     printf("=== END-TO-END TEST CASE 1: Complete Flight Booking Workflow ===\n");
     printf("Scenario: Add passengers -> Save mock CSV -> Reload -> Validate data integrity\n\n");
 
-    // ==================== ARRANGE ====================
+    
     printf("[ARRANGE] Prepare test environment\n");
     const char *test_filename = TEST_CSV;
 
@@ -58,7 +58,7 @@ void test_complete_flight_booking_workflow()
         memset(&e2eBookings[i], 0, sizeof(Booking));
 
     remove(test_filename);
-    init_flights(); // เรียกได้ ปลอดภัยเพราะไม่แตะ global ที่เราใช้
+    init_flights(); 
 
     struct
     {
@@ -195,9 +195,8 @@ void test_complete_flight_booking_workflow()
     printf("   (Kept file for inspection: %s)\n\n", test_filename);
 }
 
-// ================================================================
 // END-TO-END TEST CASE 2: Data Persistence and Search Functionality
-// ================================================================
+
 void test_data_persistence_and_search()
 {
     printf("=== END-TO-END TEST CASE 2: Data Persistence and Search Functionality ===\n");
@@ -269,9 +268,7 @@ void test_data_persistence_and_search()
     printf("   (Kept file for inspection: %s)\n\n", test_filename);
 }
 
-// ================================================================
-// Test Runner
-// ================================================================
+
 void Run_E2E_Tests()
 {
     printf("========== RUNNING END-TO-END TESTS ==========\n\n");
