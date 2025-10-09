@@ -1,3 +1,16 @@
 FlightCode,From,To,Date,SeatID,Name,Status,Code
-FL003,Phuket,Tokyo,2025-12-13,A1,pooo po,Booked,R08321
-FL001,Bangkok,Paris,2025-12-12,A1,asdasdqada adsdasd,Booked,R22513
+FL001,Bangkok,Paris,2025-12-12,A1,Prayut janocha,Booked,R19451
+FL001,Bangkok,Paris,2025-12-12,A2,LungTuu puu,Booked,R23038
+FL001,Bangkok,Paris,2025-12-12,A3,supawit witpasu,Booked,R17477
+FL001,Bangkok,Paris,2025-12-12,A4,surajit skibidi,Booked,R28233
+FL001,Bangkok,Paris,2025-12-12,A5,Kritsadate prab,Booked,R27515
+FL001,Bangkok,Paris,2025-12-12,B1,Surachai popo,Booked,R17001
+FL001,Bangkok,Paris,2025-12-12,B2,kritop poo,Booked,R10145
+FL001,Bangkok,Paris,2025-12-12,C1,PIPO POPI,Booked,R01409
+FL002,Chiangmai,Seoul,2025-12-12,A1,Ulity agus,Booked,R03850
+FL002,Chiangmai,Seoul,2025-12-12,A2,Somchock kokkok,Booked,R08588
+FL002,Chiangmai,Seoul,2025-12-12,A3,Plabo escoba,Booked,R19051
+FL002,Chiangmai,Seoul,2025-12-12,A4,Escanor norcaes,Booked,R32227
+FL002,Chiangmai,Seoul,2025-12-12,A5,slomon monskibidi,Booked,R09505
+FL002,Chiangmai,Seoul,2025-12-12,B1,kingkong boon,Booked,R04310
+FL002,Chiangmai,Seoul,2025-12-12,C1,baabon chimpanc,Booked,R13058
